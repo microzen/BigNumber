@@ -5,9 +5,9 @@ set(CMAKE_CXX_STANDARD 14)
 
 include_directories(src)
 
-add_executable(BigNumber
-        src/big_number.cpp
-        src/big_number.h)
+#add_executable(BigNumber
+#        src/big_number.cpp
+#        src/big_number.h)
 
 
 # ---------------------
