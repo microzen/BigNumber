@@ -26,16 +26,39 @@ namespace BigNumber {
 
         bool is_equal(const BigInt&);
 
-        bool is_greater(const BigInt&);
+        bool is_greater(const BigInt &);
 
-        bool is_lesser(const BigInt&);
+        bool is_lesser(const BigInt &);
 
         bool is_prime();
 
         string get_number() const;
-private:
+
+        string to_string() const;
+
+    private:
         string _num;
-};
+    };
+
+    BigInt operator+(const BigInt&,const BigInt&);
+    BigInt operator-(const BigInt&,const BigInt&);
+    BigInt operator*(const BigInt&,const BigInt&);
+    BigInt operator/(const BigInt&,const BigInt&);
+
+    bool operator==(const BigInt&,const BigInt&);
+    bool operator>(const BigInt&,const BigInt&);
+    bool operator<(const BigInt&,const BigInt&);
+
+
+    BigInt operator+=(const BigInt&,const BigInt&);
+    BigInt operator-=(const BigInt&,const BigInt&);
+    BigInt operator*=(const BigInt&,const BigInt&);
+    BigInt operator/=(const BigInt&,const BigInt&);
+
+    bool operator!=(const BigInt&,const BigInt&);
+    bool operator<=(const BigInt&,const BigInt&);
+    bool operator>=(const BigInt&,const BigInt&);
+
 
 }
 #endif //BIGNUMBER_BIG_NUMBER_H
