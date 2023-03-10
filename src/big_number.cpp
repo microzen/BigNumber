@@ -4,6 +4,6 @@
 
 #include <big_number.h>
 
-BigInt::BigInt(std::string num) {
+BigNumber::BigInt::BigInt(std::string num) {
     this->_num = num;
 }
