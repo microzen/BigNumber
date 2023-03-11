@@ -18,13 +18,6 @@ namespace BB
         number.at(0) = n;
     }
 
-    /*
-    BigBits::BigBits(string)
-    {
-        
-    }
-    */
-
     BigBits::BigBits(const BigBits &other)
     {
         *this = other;
@@ -32,7 +25,12 @@ namespace BB
 
 
     // **********************************************************************************************
-    // Public Helper Functions:
+    // Getters:
+
+    const uint64_t & BigBits::at(unsigned int i) const
+    {
+        return number.at(i);
+    }
 
     vector<uint64_t> BigBits::getVect() const
     {
@@ -44,28 +42,14 @@ namespace BB
         return number.size() * 64;
     }
 
-    BigBits & BigBits::randomize(unsigned int min_power, unsigned int max_power)
-    {
-        unsigned int bin_digits = rand() % (max_power - min_power + 1) + min_power;
-        cout << bin_digits << endl;
-        vector<unsigned int> bin(bin_digits, 0);
-
-        bin.at(bin.size()-1) = 1;
-        for (unsigned int i = 0; i<bin.size()-1; i++)
-        {
-            bin.at(i) = rand() % 2;
-        }
-
-        BigBits temp;
-        temp.fromBin(bin);
-        *this = temp;
-
-        return *this;
-    }
-
     uint64_t BigBits::truncate(BigBits &n) const
     {
         return n.at(0);
+    }
+
+    unsigned int BigBits::size() const
+    {
+        return number.size();
     }
 
     vector<unsigned int> BigBits::toBin()
@@ -86,6 +70,34 @@ namespace BB
         bin.resize(new_len, 0);
 
         return bin;
+    }
+
+
+    // **********************************************************************************************
+    // Setters:
+
+    uint64_t & BigBits::at(unsigned int i)
+    {
+        return number.at(i);
+    }
+
+    BigBits & BigBits::randomize(unsigned int min_power, unsigned int max_power)
+    {
+        unsigned int bin_digits = rand() % (max_power - min_power + 1) + min_power;
+        cout << bin_digits << endl;
+        vector<unsigned int> bin(bin_digits, 0);
+
+        bin.at(bin.size()-1) = 1;
+        for (unsigned int i = 0; i<bin.size()-1; i++)
+        {
+            bin.at(i) = rand() % 2;
+        }
+
+        BigBits temp;
+        temp.fromBin(bin);
+        *this = temp;
+
+        return *this;
     }
 
     // CHANGE: need to store num as BigBits, 
@@ -109,7 +121,50 @@ namespace BB
 
 
     // **********************************************************************************************
+    // Mutators:
+
+    void BigBits::expand()
+    {
+        number.resize(number.size()*2, 0);
+    }
+
+    void BigBits::resize(unsigned int elements)
+    {   
+        // I still need to handle the case where elements < *this.size()
+        if (elements >= number.size())
+        {
+            number.resize(elements, 0);
+        }
+    }
+
+
+    // **********************************************************************************************
+    // Other:
+
+    BigBits & BigBits::findMinSize()
+    {
+        unsigned int counter = 0;
+        for (unsigned int i=0; i<this->size(); i++)
+        {
+            uint64_t currentVal = this->at(i);
+            do
+            {
+                counter++;
+                currentVal /= 2;
+            } while (currentVal > 0);
+        }
+        unsigned int new_size = ceilPowTwo(counter);
+        this->number.resize(new_size);
+
+        return *this;
+    }
+
+
+    // **********************************************************************************************
     // Operation Overloading:
+
+    // **********************************************************************************************
+    // Direct Assignment:
 
     BigBits & BigBits::operator =(const BigBits &n)
     {
@@ -123,79 +178,13 @@ namespace BB
         return *this;
     }
 
-    // Dont forget to findMinSize() for a, b, (and maybe result) at the end;
-    BigBits operator +(BigBits &a, BigBits &b)
+    // **********************************************************************************************
+    // Comparison Operators
+
+    bool BigBits::operator ==(const BigBits &b)
     {
-        const uint64_t MAX = 18446744073709551615; // 2^^64 - 1
-        uint64_t overflowA, overflowB, carryIn, carryOut=0;
-        BigBits result;
+        BigBits a = *this;
 
-        if (a.size() > b.size())
-        {
-            b.resize(a.size());
-        }
-        else if (a.size() < b.size())
-        {
-            a.resize(b.size());
-        }
-        result.resize(a.size());
-
-        for (unsigned int i=0; i < a.size(); i++)
-        {
-            carryIn = carryOut;
-
-            overflowA = MAX - a.at(i);
-            overflowB = MAX - b.at(i);
-
-            if (a.at(i) > overflowB || b.at(i) > overflowA)
-            {
-                // sum of two overflows will be less than MAX, but sum of a and b will be more than MAX
-                uint64_t temp = overflowA + overflowB;
-                // need to handle case where this next operation overflows
-                carryOut = MAX - temp + carryIn;
-                result.at(i) = MAX;
-
-                if ((i == a.size()-1) && carryOut > 0)
-                {
-                    result.expand();
-                    result.at(i+1) = carryOut;
-                }
-            }
-            else if (a.at(i) == overflowB || b.at(i) == overflowA)
-            {
-                // sum of two overflows will be == to MAX, so will sum of a and b
-                // This case is finished
-                result.at(i) = MAX;
-                carryOut = carryIn;
-
-                if ((i == a.size()-1) && carryOut > 0)
-                {
-                    result.expand();
-                    result.at(i+1) = carryOut;
-                }
-            }
-            else
-            {
-                // sum of two overflows will be more than MAX, but sum of a and b will be less than MAX
-                uint64_t temp = a.at(i) + b.at(i);
-                // Need to handle case where the result is negative
-                carryOut = MAX - temp - carryIn;
-                result.at(i) = temp;
-
-                if ((i == a.size()-1) && carryOut > 0)
-                {
-                    result.expand();
-                    result.at(i+1) = carryOut;
-                }
-            }
-        }
-
-        return result;
-    }
-
-
-    bool operator ==(const BigBits &a, const BigBits &b)
-    {
         if (a.size() != b.size())
         {
             return false;
@@ -212,14 +201,16 @@ namespace BB
         return true;
     }
 
-    bool operator !=(const BigBits &a, const BigBits &b)
+    bool BigBits::operator !=(const BigBits &b)
     {
+        BigBits a = *this;
         return !(a == b);
     }
 
-
-    bool operator >(const BigBits &a, const BigBits &b)
+    bool BigBits::operator >(const BigBits &b)
     {
+        BigBits a = *this;
+
         if (a.size() > b.size())
         {
             return true;
@@ -246,9 +237,10 @@ namespace BB
         return true;
     }
 
-
-    bool operator >=(const BigBits &a, const BigBits &b)
+    bool BigBits::operator >=(const BigBits &b)
     {
+        BigBits a = *this;
+
         if (a > b || a == b)
         {
             return true;
@@ -257,13 +249,16 @@ namespace BB
         return false;
     }
 
-    bool operator <(const BigBits &a, const BigBits &b)
+    bool BigBits::operator <(const BigBits &b)
     {
-        return b > a;
+        BigBits a = *this;
+        return !(a > b && a == b);
     }
 
-    bool operator <=(const BigBits &a, const BigBits &b)
+    bool BigBits::operator <=(const BigBits &b)
     {
+        BigBits a = *this;
+
         if (a < b || a == b)
         {
             return true;
@@ -271,6 +266,80 @@ namespace BB
 
         return false;
     }
+
+
+    // **********************************************************************************************
+    // Addition and Subtraction:
+
+    BigBits & BigBits::operator +=(const BigBits &rhs)
+    {
+        BigBits a = *this;
+        BigBits b = rhs;
+        BigBits result;
+
+        const uint64_t MAX = 18446744073709551615; // 2^^64 - 1
+        uint64_t overflowA, overflowB;
+        bool carryIn, carryOut=false;
+
+        // Resize so a, b, and result are the same size
+        if (a.size() > b.size())
+        {
+            b.resize(a.size());
+        }
+        else if (a.size() < b.size())
+        {
+            a.resize(b.size());
+        }
+        result.resize(a.size());
+
+        // For each element in result's number vector, add the two corresponding elements of a and b
+        for (unsigned int i=0; i < result.size(); i++)
+        {
+            carryIn = carryOut;
+
+            overflowA = MAX - a.at(i);
+            overflowB = MAX - b.at(i);
+
+            result.at(i) = carryIn + a.at(i) + b.at(i);
+
+            if (a.at(i) > overflowB || b.at(i) > overflowA)
+            {
+                // sum of two overflows will be less than MAX, but sum of a and b will be more than MAX
+                carryOut = true;
+            }
+            else if (a.at(i) == overflowB || b.at(i) == overflowA)
+            {
+                // sum of two overflows will be == to MAX, so will sum of a and b
+                carryOut = carryIn;
+            }
+            else
+            {
+                // sum of two overflows will be more than MAX, but sum of a and b will be less than MAX
+                carryOut = false;
+            }
+
+            if ((i == result.size()-1) && carryOut)
+            {
+                result.expand();
+                result.at(i+1) = 1;
+            }
+        }
+
+        number = result.getVect();
+
+        return *this;
+    }
+
+    BigBits operator +(BigBits &a, BigBits &b)
+    {
+        BigBits temp = a;
+        temp += b;
+        return temp;
+    }
+
+
+    // **********************************************************************************************
+    // Stream Operators:
 
     ostream & operator <<(ostream &os, const BigBits &a)
     {
@@ -286,53 +355,6 @@ namespace BB
     // **********************************************************************************************
     // Private Functions:
 
-    unsigned int BigBits::size() const
-    {
-        return number.size();
-    }
-
-    const uint64_t & BigBits::at(unsigned int i) const
-    {
-        return number.at(i);
-    }
-
-    uint64_t & BigBits::at(unsigned int i)
-    {
-        return number.at(i);
-    }
-
-    void BigBits::expand()
-    {
-        number.resize(number.size()*2, 0);
-    }
-
-    void BigBits::resize(unsigned int elements)
-    {   
-        // I still need to handle the case where elements < *this.size()
-        if (elements >= number.size())
-        {
-            number.resize(elements, 0);
-        }
-    }
-
-    BigBits & BigBits::findMinSize()
-    {
-        unsigned int counter = 0;
-        for (unsigned int i=0; i<this->size(); i++)
-        {
-            uint64_t currentVal = this->at(i);
-            do
-            {
-                counter++;
-                currentVal /= 2;
-            } while (currentVal > 0);
-        }
-        unsigned int new_size = ceilPowTwo(counter);
-        this->number.resize(new_size);
-
-        return *this;
-    }
-
     unsigned int BigBits::ceilPowTwo(unsigned int value)
     {
         unsigned int ceil_num = pow(2, ceil(log2(value)));
@@ -344,4 +366,6 @@ namespace BB
         
         return ceil_num;
     }
-}
+
+
+} // End of namespace BB

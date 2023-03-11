@@ -47,22 +47,48 @@ namespace BB
             BigBits &operator =(const uint64_t &);
             //BigBits &operator =(const string &);
 
+            //Comparison operators
+            bool operator ==(const BigBits &);
+            bool operator !=(const BigBits &);
+            bool operator >(const BigBits &);
+            bool operator >=(const BigBits &);
+            bool operator <(const BigBits &);
+            bool operator <=(const BigBits &);
+
             /*
             //Incrementation/decrementation
-            BigBits &operator++();
-            BigBits &operator--();
-
-            //Multiplication and Division
-            BigBits &operator*=(BigBits &, const BigBits &);
-            BigBits &operator/=(BigBits &, const BigBits &);
-
-            //Modulo
-            BigBits &operator%=(BigBits &, const BigBits &);
-
-            //Power Function
-            BigBits &operator^=(BigBits &,const BigBits &);
+            BigBits &operator ++();
+            BigBits &operator --();
             */
 
+            //Addition and Subtraction
+            BigBits &operator +=(const BigBits &);
+            friend BigBits operator +(BigBits &, BigBits &);
+            /*
+            BigBits &operator -=(BigBits &, const BigBits &);
+            BigBits operator -(const BigBits &, const BigBits &);
+
+            //Multiplication and Division
+            BigBits &operator *=(BigBits &, const BigBits &);
+            BigBits operator *(const BigBits &, const BigBits &);
+            BigBits &operator /=(BigBits &, const BigBits &);
+            BigBits operator /(const BigBits &, const BigBits &);
+
+            //Modulo
+            BigBits &operator %=(BigBits &, const BigBits &);
+            BigBits operator %(const BigBits &, const BigBits &);
+
+            //Power Function
+            BigBits &operator ^=(BigBits &,const BigBits &);
+            BigBits operator ^^(BigBits &, const BigBits &);
+
+            // Square Root
+            BigBits & sqrt(BigBits &a);
+            */
+
+            //Stream operators
+            friend ostream & operator <<(ostream &, const BigBits &a);
+            
         private:
             // Private Data Members
             vector<uint64_t> number;
@@ -71,37 +97,4 @@ namespace BB
             unsigned int ceilPowTwo(unsigned int);
     };
 
-    //Addition and Subtraction
-    BigBits operator +(BigBits &, BigBits &);
-    /*
-    BigBits &operator+=(BigBits &, const BigBits &);
-    BigBits operator-(const BigBits &, const BigBits &);
-    BigBits &operator-=(BigBits &, const BigBits &);
-    */
-
-    //Comparison operators
-    bool operator ==(const BigBits &, const BigBits &);
-    bool operator !=(const BigBits &, const BigBits &);
-    bool operator >(const BigBits &, const BigBits &);
-    bool operator >=(const BigBits &, const BigBits &);
-    bool operator <(const BigBits &, const BigBits &);
-    bool operator <=(const BigBits &, const BigBits &);
-
-    /*
-    //Multiplication and Division
-    BigBits operator*(const BigBits &, const BigBits &);
-    BigBits operator/(const BigBits &, const BigBits &);
-
-    //Modulo
-    BigBits operator%(const BigBits &, const BigBits &);
-
-    //Power Function
-    BigBits operator^^(BigBits &, const BigBits &);
-
-    //Square Root
-    BigBits sqrt(BigBits &a);
-    */
-
-    //Stream operators
-    ostream & operator <<(ostream &, const BigBits &a);
-}
+} // End of namespace BB
