@@ -16,12 +16,13 @@ namespace BB
         public:
             // Constructors
             BigBits();
-            BigBits(unsigned long long);
+            BigBits(uint64_t);
             BigBits(const BigBits &);
-            //BigBits(string); // I need operator+= for this I think
+            BigBits(const string);
+            BigBits(const char *);
 
             // Getters
-            const uint64_t & at(unsigned int) const;
+            const uint64_t at(unsigned int) const;
             vector<uint64_t> getVect() const;
             unsigned int getNumBits() const;
             uint64_t truncate(BigBits &) const;
@@ -43,11 +44,12 @@ namespace BB
             /// Operator Overloading ///
 
             // Direct Assignment
-            BigBits &operator =(const BigBits &);
-            BigBits &operator =(const uint64_t &);
-            //BigBits &operator =(const string &);
+            BigBits & operator =(const BigBits &);
+            BigBits & operator =(const uint64_t &);
+            BigBits & operator =(const string &);
+            BigBits & operator =(const char *);
 
-            //Comparison operators
+            // Comparison operators
             bool operator ==(const BigBits &);
             bool operator !=(const BigBits &);
             bool operator >(const BigBits &);
@@ -55,30 +57,53 @@ namespace BB
             bool operator <(const BigBits &);
             bool operator <=(const BigBits &);
 
+            bool operator ==(const uint64_t &);
+            bool operator !=(const uint64_t &);
+            bool operator >(const uint64_t &);
+            bool operator >=(const uint64_t &);
+            bool operator <(const uint64_t &);
+            bool operator <=(const uint64_t &);
+
+            bool operator ==(const string &);
+            bool operator !=(const string &);
+            bool operator >(const string &);
+            bool operator >=(const string &);
+            bool operator <(const string &);
+            bool operator <=(const string &);
+
+            bool operator ==(const char *);
+            bool operator !=(const char *);
+            bool operator >(const char *);
+            bool operator >=(const char *);
+            bool operator <(const char *);
+            bool operator <=(const char *);
+
+            // Incrementation/decrementation
+            BigBits & operator ++();
+            BigBits operator ++(int temp);
             /*
-            //Incrementation/decrementation
-            BigBits &operator ++();
             BigBits &operator --();
+            BigBits operator --(int temp);
             */
 
-            //Addition and Subtraction
-            BigBits &operator +=(const BigBits &);
+            // Addition and Subtraction
+            BigBits & operator +=(const BigBits &);
             friend BigBits operator +(BigBits &, BigBits &);
             /*
             BigBits &operator -=(BigBits &, const BigBits &);
             BigBits operator -(const BigBits &, const BigBits &);
 
-            //Multiplication and Division
+            // Multiplication and Division
             BigBits &operator *=(BigBits &, const BigBits &);
             BigBits operator *(const BigBits &, const BigBits &);
             BigBits &operator /=(BigBits &, const BigBits &);
             BigBits operator /(const BigBits &, const BigBits &);
 
-            //Modulo
+            // Modulo
             BigBits &operator %=(BigBits &, const BigBits &);
             BigBits operator %(const BigBits &, const BigBits &);
 
-            //Power Function
+            // Power Function
             BigBits &operator ^=(BigBits &,const BigBits &);
             BigBits operator ^^(BigBits &, const BigBits &);
 
@@ -86,7 +111,7 @@ namespace BB
             BigBits & sqrt(BigBits &a);
             */
 
-            //Stream operators
+            // Stream operators
             friend ostream & operator <<(ostream &, const BigBits &a);
             
         private:

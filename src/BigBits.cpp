@@ -9,13 +9,13 @@ namespace BB
 
     BigBits::BigBits()
     {
-        number.resize(1, 0);
+        number.resize(1,0);
     }
 
-    BigBits::BigBits(unsigned long long n)
+    BigBits::BigBits(uint64_t n)
     {
-        number.resize(1, 0);
-        number.at(0) = n;
+        number.resize(1);
+        *this = n;
     }
 
     BigBits::BigBits(const BigBits &other)
@@ -23,11 +23,22 @@ namespace BB
         *this = other;
     }
 
+    // Work in progress
+    BigBits::BigBits(const string s)
+    {
+        *this = s;
+    }
+
+    BigBits::BigBits(const char *s)
+    {
+        *this = s;
+    }
+
 
     // **********************************************************************************************
     // Getters:
 
-    const uint64_t & BigBits::at(unsigned int i) const
+    const uint64_t BigBits::at(unsigned int i) const
     {
         return number.at(i);
     }
@@ -178,6 +189,28 @@ namespace BB
         return *this;
     }
 
+    // I need BigBits multiplication to handle the case where the string represents a num > 2^64
+    BigBits & BigBits::operator =(const string &s)
+    {
+        BigBits temp;
+        for (unsigned int i=0; i < s.size(); i++)
+        {
+            uint64_t nextDigit = stoi(s.substr((s.size() - i - 1), 1));
+            uint64_t nextNum = nextDigit * pow(10, i);
+            temp += nextNum;
+        }
+
+        *this = temp;
+        return *this;
+    }
+
+    BigBits & BigBits::operator =(const char *s)
+    {
+        *this = string(s);
+        return *this;
+    }
+
+
     // **********************************************************************************************
     // Comparison Operators
 
@@ -267,6 +300,131 @@ namespace BB
         return false;
     }
 
+    bool BigBits::operator ==(const uint64_t &b)
+    {
+        BigBits temp = b;
+        return *this == temp;
+    }
+
+    bool BigBits::operator !=(const uint64_t &b)
+    {
+        BigBits temp = b;
+        return *this != temp;
+    }
+
+    bool BigBits::operator >(const uint64_t &b)
+    {
+        BigBits temp = b;
+        return *this > temp;
+    }
+
+    bool BigBits::operator >=(const uint64_t &b)
+    {
+        BigBits temp = b;
+        return *this >= temp;
+    }
+
+    bool BigBits::operator <(const uint64_t &b)
+    {
+        BigBits temp = b;
+        return *this < temp;
+    }
+
+    bool BigBits::operator <=(const uint64_t &b)
+    {
+        BigBits temp = b;
+        return *this <= temp;
+    }
+
+    bool BigBits::operator ==(const string &b)
+    {
+        BigBits temp = b;
+        return *this == temp;
+    }
+
+    bool BigBits::operator !=(const string &b)
+    {
+        BigBits temp = b;
+        return *this != temp;
+    }
+
+    bool BigBits::operator >(const string &b)
+    {
+        BigBits temp = b;
+        return *this > temp;
+    }
+
+    bool BigBits::operator >=(const string &b)
+    {
+        BigBits temp = b;
+        return *this >= temp;
+    }
+
+    bool BigBits::operator <(const string &b)
+    {
+        BigBits temp = b;
+        return *this < temp;
+    }
+
+    bool BigBits::operator <=(const string &b)
+    {
+        BigBits temp = b;
+        return *this <= temp;
+    }
+
+    bool BigBits::operator ==(const char *b)
+    {
+        BigBits temp = b;
+        return *this == temp;
+    }
+
+    bool BigBits::operator !=(const char *b)
+    {
+        BigBits temp = b;
+        return *this != temp;
+    }
+
+    bool BigBits::operator >(const char *b)
+    {
+        BigBits temp = b;
+        return *this > temp;
+    }
+
+    bool BigBits::operator >=(const char *b)
+    {
+        BigBits temp = b;
+        return *this >= temp;
+    }
+
+    bool BigBits::operator <(const char *b)
+    {
+        BigBits temp = b;
+        return *this < temp;
+    }
+    
+    bool BigBits::operator <=(const char *b)
+    {
+        BigBits temp = b;
+        return *this <= temp;
+    }
+
+
+    // **********************************************************************************************
+    // Incrementation/decrementation
+
+    BigBits & BigBits::operator ++()
+    {
+        BigBits temp = 1;
+        *this += temp;
+        return *this;
+    }
+
+    BigBits BigBits::operator ++(int temp)
+    {
+        ++(*this);
+        return *this;
+    }
+
 
     // **********************************************************************************************
     // Addition and Subtraction:
@@ -278,7 +436,7 @@ namespace BB
         BigBits result;
 
         const uint64_t MAX = 18446744073709551615; // 2^^64 - 1
-        uint64_t overflowA, overflowB;
+        uint64_t inverseA;
         bool carryIn, carryOut=false;
 
         // Resize so a, b, and result are the same size
@@ -297,18 +455,20 @@ namespace BB
         {
             carryIn = carryOut;
 
-            overflowA = MAX - a.at(i);
-            overflowB = MAX - b.at(i);
+            inverseA = MAX - a.at(i);
 
             result.at(i) = carryIn + a.at(i) + b.at(i);
 
-            if (a.at(i) > overflowB || b.at(i) > overflowA)
+            // Determine the carry out state
+            if (b.at(i) > inverseA)
             {
                 // sum of two overflows will be less than MAX, but sum of a and b will be more than MAX
                 carryOut = true;
             }
-            else if (a.at(i) == overflowB || b.at(i) == overflowA)
-            {
+            else if (b.at(i) == inverseA)
+            {   
+                // This case might not be working correctly, need to test
+                //
                 // sum of two overflows will be == to MAX, so will sum of a and b
                 carryOut = carryIn;
             }
@@ -345,7 +505,7 @@ namespace BB
     {
         for (unsigned int i=0; i < a.size(); i++)
         {
-            os << i+1 << ": " << a.at(i) << endl;
+            os << a.at(a.size() - i - 1);
         }
 
         return os;
