@@ -5,6 +5,8 @@ using namespace std;
 namespace BB
 {
     // **********************************************************************************************
+    // BigBits:
+    // **********************************************************************************************
     // Constructors:
 
     BigBits::BigBits()
@@ -24,7 +26,7 @@ namespace BB
     }
 
     // Work in progress
-    BigBits::BigBits(const string s)
+    BigBits::BigBits(const string &s)
     {
         *this = s;
     }
@@ -63,7 +65,7 @@ namespace BB
         return number.size();
     }
 
-    vector<unsigned int> BigBits::toBin()
+    vector<unsigned int> BigBits::toBin() const
     {
         vector<unsigned int> bin;
         
@@ -155,7 +157,7 @@ namespace BB
     BigBits & BigBits::findMinSize()
     {
         unsigned int counter = 0;
-        for (unsigned int i=0; i<this->size(); i++)
+        for (unsigned int i=0; i < this->size(); i++)
         {
             uint64_t currentVal = this->at(i);
             do
@@ -171,9 +173,7 @@ namespace BB
     }
 
 
-    // **********************************************************************************************
     // Operation Overloading:
-
     // **********************************************************************************************
     // Direct Assignment:
 
@@ -435,9 +435,9 @@ namespace BB
         BigBits b = rhs;
         BigBits result;
 
-        const uint64_t MAX = 18446744073709551615; // 2^^64 - 1
-        uint64_t inverseA;
         bool carryIn, carryOut=false;
+        uint64_t inverseA;
+        const uint64_t MAX = 18446744073709551615; // 2^^64 - 1
 
         // Resize so a, b, and result are the same size
         if (a.size() > b.size())
@@ -449,51 +449,65 @@ namespace BB
             a.resize(b.size());
         }
         result.resize(a.size());
+        unsigned int end = result.size(); // Prime for loop
 
         // For each element in result's number vector, add the two corresponding elements of a and b
-        for (unsigned int i=0; i < result.size(); i++)
+        for (unsigned int i=0; i < end; i++)
         {
             carryIn = carryOut;
-
+            end = result.size();
             inverseA = MAX - a.at(i);
 
-            result.at(i) = carryIn + a.at(i) + b.at(i);
-
             // Determine the carry out state
-            if (b.at(i) > inverseA)
+            if (inverseA < b.at(i))
             {
-                // sum of two overflows will be less than MAX, but sum of a and b will be more than MAX
+                // Sum of a and b will be more than MAX
                 carryOut = true;
             }
-            else if (b.at(i) == inverseA)
+            else if (inverseA == b.at(i))
             {   
-                // This case might not be working correctly, need to test
-                //
-                // sum of two overflows will be == to MAX, so will sum of a and b
+                // Sum of a and b will == MAX
                 carryOut = carryIn;
             }
-            else
+            else // (inverseA > b.at(i))
             {
-                // sum of two overflows will be more than MAX, but sum of a and b will be less than MAX
+                // Sum of a and b will be less than MAX
                 carryOut = false;
             }
 
+            // Determine if a resize is necessary
             if ((i == result.size()-1) && carryOut)
             {
                 result.expand();
-                result.at(i+1) = 1;
+                result.at(i+1) = carryOut;
             }
+
+            // Actual add operation
+            result.at(i) = carryIn + a.at(i) + b.at(i);
         }
 
+        // result.findMinSize(); // I think this is only needed for subtraction
         number = result.getVect();
 
         return *this;
     }
 
-    BigBits operator +(BigBits &a, BigBits &b)
+    BigBits BigBits::operator +(BigBits &b)
     {
-        BigBits temp = a;
+        BigBits temp = *this;
         temp += b;
+        return temp;
+    }
+
+    BigBits & BigBits::operator +=(const uint64_t &n)
+    {
+        return *this += BigBits(n);
+    }
+
+    BigBits BigBits::operator +(const uint64_t &n)
+    {
+        BigBits temp = *this;
+        temp += n;
         return temp;
     }
 
@@ -501,12 +515,53 @@ namespace BB
     // **********************************************************************************************
     // Stream Operators:
 
+    // Eventually I might need to use Binary to BCD
     ostream & operator <<(ostream &os, const BigBits &a)
     {
+        /*
+        // temp method
         for (unsigned int i=0; i < a.size(); i++)
         {
-            os << a.at(a.size() - i - 1);
+            os << i+1 << ": " << a.at(i) << endl;
         }
+        */
+
+        string s = a.toString();
+        os << s;
+
+        /*
+        // string method
+        string s = "";
+        // for element in number vector
+        unsigned int i = a.size();
+        do
+        {
+            i--;
+            unsigned long long currentNum = a.at(i);
+            do
+            {
+                s += to_string(currentNum % 10);
+                currentNum /= 10;
+            } while (currentNum > 0);
+        } while (i != 0);
+        cout << s;
+        */
+        
+        /*
+        for (unsigned int i = (a.size() - 1); i>=0; i--)
+        {
+            cout << "i: " << i << endl;
+            unsigned long long currentNum = a.at(i);
+            do
+            {
+                s += to_string(currentNum % 10);
+                currentNum /= 10;
+            } while (currentNum > 0);
+        }
+        cout << s;
+        */
+
+        cout << endl;
 
         return os;
     }
@@ -515,10 +570,12 @@ namespace BB
     // **********************************************************************************************
     // Private Functions:
 
-    unsigned int BigBits::ceilPowTwo(unsigned int value)
+    // Takes an unsigned int n and returns the smallest power of two that is >= n and >= 64
+    unsigned int BigBits::ceilPowTwo(unsigned int n) const
     {
-        unsigned int ceil_num = pow(2, ceil(log2(value)));
+        unsigned int ceil_num = pow(2, ceil(log2(n)));
 
+        // Since BigBits uses 64 bit numbers, the smallest relevant power is 64
         if (ceil_num < 64)
         {
             return 64;
@@ -527,5 +584,117 @@ namespace BB
         return ceil_num;
     }
 
+    //TODO: Debug
+    //      It produces the correct output for even numbers <= 8
+    //      But thats not very useful, all other inputs seem to produce
+    //      incorrect outputs
+    string BigBits::toString() const
+    {   
+        int bcdSize = 1;
+        int bbSize = this->size() * 64;
+        vector<Nibble> bcd;
+        string result = "";
+        bool shiftIn, 
+             shiftOut = this->leftShiftOut(this->size() - 1);
+
+        // First iteration
+        bcd.resize(bcdSize);
+        bcd.at(0) = shiftOut;
+
+        // For every bit in *this
+        for (int i=1; i < bbSize; i++)
+        {
+            // Shift out next bit from *this
+            shiftOut = this->leftShiftOut(bbSize - i - 1);
+
+            // For every nibble in bcd
+            for (int j=0; j < bcdSize; j++)
+            {
+                shiftIn = shiftOut;
+
+                // Apply double dabble
+                if (bcd.at(j) > 4)
+                {
+                    bcd.at(j) += 3;
+                }
+                shiftOut = bcd.at(j).shift(shiftIn);
+
+                // Check if bcd needs to be expanded
+                if ((j == (bcdSize - 1)) && shiftOut)
+                {
+                    bcdSize++;
+                    bcd.resize(bcdSize, shiftOut);
+                }
+            }
+        }
+
+        //Translate BCD bits to string
+        for (unsigned int i=0; i<bcd.size(); i++)
+        {
+            result += bcd.at(i).toChar();
+        }
+
+        return result;
+    }
+
+    bool BigBits::leftShiftOut(unsigned int i) const
+    {
+        vector<unsigned int> bin = this->toBin();
+        return bin.at(i);
+    }
+
+
+    // **********************************************************************************************
+    // Nibble:
+    // **********************************************************************************************
+    // Constructors:
+
+    Nibble::Nibble()
+    {
+        low = 0;
+        high = 0;
+    }
+
+    Nibble::Nibble(uint8_t n)
+    {
+        low = (n & 0xF);
+        high = 0;
+    }
+
+    // **********************************************************************************************
+    // Helper Functions:
+
+    bool Nibble::shift(const bool shiftIn)
+    {
+        bool shiftOut = low & 0b00001000;
+        low = low << 1;
+        low += shiftIn;
+        return shiftOut;
+    }
+
+    char Nibble::toChar() const
+    {
+        return low + '0';
+    }
+
+    // **********************************************************************************************
+    // Operator Overloading:
+
+    Nibble & Nibble::operator =(const uint8_t n)
+    {
+        low = (n & 0xF);
+        return *this;
+    }
+
+    Nibble & Nibble::operator +=(const uint8_t n)
+    {
+        low += (n & 0xF);
+        return *this;
+    }
+
+    bool Nibble::operator >(const uint8_t n)
+    {
+        return low > (n & 0xF);
+    }
 
 } // End of namespace BB

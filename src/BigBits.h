@@ -18,7 +18,7 @@ namespace BB
             BigBits();
             BigBits(uint64_t);
             BigBits(const BigBits &);
-            BigBits(const string);
+            BigBits(const string &);
             BigBits(const char *);
 
             // Getters
@@ -27,7 +27,7 @@ namespace BB
             unsigned int getNumBits() const;
             uint64_t truncate(BigBits &) const;
             unsigned int size() const;
-            vector<unsigned int> toBin();
+            vector<unsigned int> toBin() const;
 
             // Setters
             uint64_t & at(unsigned int);
@@ -88,7 +88,14 @@ namespace BB
 
             // Addition and Subtraction
             BigBits & operator +=(const BigBits &);
-            friend BigBits operator +(BigBits &, BigBits &);
+            BigBits operator +(BigBits &);
+            /*
+            BigBits &operator -=(BigBits &, const BigBits &);
+            BigBits operator -(const BigBits &, const BigBits &);
+            */
+
+            BigBits & operator +=(const uint64_t &);
+            BigBits operator +(const uint64_t &);
             /*
             BigBits &operator -=(BigBits &, const BigBits &);
             BigBits operator -(const BigBits &, const BigBits &);
@@ -119,7 +126,28 @@ namespace BB
             vector<uint64_t> number;
 
             // Private Helper Functions
-            unsigned int ceilPowTwo(unsigned int);
+            unsigned int ceilPowTwo(unsigned int) const;
+            string toString() const;
+            bool leftShiftOut(unsigned int) const;
+    };
+
+
+    class Nibble
+    {
+        public:
+            Nibble();
+            Nibble(uint8_t);
+
+            bool shift(const bool);
+            char toChar() const;
+
+            Nibble & operator =(const uint8_t);
+            Nibble & operator +=(const uint8_t);
+            bool operator >(const uint8_t);
+
+        private:
+            uint8_t low : 4;
+            uint8_t high : 4;
     };
 
 } // End of namespace BB
