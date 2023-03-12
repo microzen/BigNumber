@@ -21,22 +21,37 @@ TEST(BBITS,Init){
 TEST(BBITS, AdditionWithULLong) {
     BB::BigBits ullbig(ULLONG_MAX);
     ullbig = ullbig + 1;
-    EXPECT_EQ(ullbig.at(0),ULLONG_MAX);
-    EXPECT_EQ(ullbig.at(1),1);
+    EXPECT_EQ(ullbig.at(0), 0);
+    EXPECT_EQ(ullbig.at(1), 1);
 
+    ullbig = ullbig + ULLONG_MAX;
     ullbig = ullbig + 1;
-    EXPECT_EQ(ullbig.at(0),ULLONG_MAX);
-    EXPECT_EQ(ullbig.at(1),2);
 
-    vector<::uint64_t> s = ullbig.getVect();
+    EXPECT_EQ(ullbig.at(0), 0);
+    EXPECT_EQ(ullbig.at(1), 2);
 
 }
 
-TEST(BBITS,AdditionWithBigBits){
+TEST(BBITS, AdditionWithBigBits) {
     BB::BigBits bigulli(ULLONG_MAX);
     BB::BigBits num1(1);
 
     BB::BigBits result = bigulli + num1;
+}
 
+TEST(BBITS, Greater) {
+    BB::BigBits a(ULLONG_MAX);
+    BB::BigBits b(ULLONG_MAX);
 
+    a = a + 1 + ULLONG_MAX;
+    a = a + 1 + ULLONG_MAX;
+    a = a + 10;
+
+    b = b + 1 + ULLONG_MAX;
+    b = b + 1 + ULLONG_MAX;
+    b = b + 1 + ULLONG_MAX;
+    b = b + 1 + ULLONG_MAX;
+    b = b + 1 ;
+
+    EXPECT_TRUE(b > a);
 }
