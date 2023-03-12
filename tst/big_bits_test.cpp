@@ -6,8 +6,8 @@
 #include <stdint.h>
 
 TEST(BBITS,Init){
+    // uint64_t
     EXPECT_NO_THROW(BB::BigBits());
-//    unit64_t
     EXPECT_NO_THROW(BB::BigBits(ULLONG_MAX));
     EXPECT_NO_THROW(BB::BigBits("123456987123786783654378264587234657823465782346578236457823645"));
     EXPECT_NO_THROW(BB::BigBits("7823645"));
@@ -58,4 +58,28 @@ TEST(BBITS, Greater) {
     b = b + 1 ;
 
     EXPECT_TRUE(b > a) << "b > a should be true.";
+}
+
+TEST(BBITS, FromBin) {
+    BB::BigBits num;
+
+    // BigBits are "little endian", meaning the least significant bit is stored at the smallest address
+    // Keep that in mind when using toBin() and fromBin()
+    //
+    //                        least significant -> most significant
+    vector<unsigned int> bin = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+    num.fromBin(bin);
+    EXPECT_EQ(num.at(0),131071);
+
+    srand(0);
+    bin.resize(0);
+    for (unsigned int i=0; i<80; i++)
+    {
+        bin.push_back(rand()%2);
+    }
+    num.fromBin(bin);
+
+    EXPECT_EQ(num.size(), 2);
+    EXPECT_EQ(num.at(0), 8341798683095734119);
+    EXPECT_EQ(num.at(1), 58618);
 }

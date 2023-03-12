@@ -119,16 +119,23 @@ namespace BB
         return *this;
     }
 
-    //TODO: test
+    //TODO: It isnt working properly for BigBits with >1 element
     BigBits & BigBits::fromBin(vector<unsigned int> bin)
     {
         BigBits num = "0";
+        unsigned int bitOffset = 0;
 
         for (unsigned int i=0; i<bin.size(); i++)
         {
+            if (i - bitOffset >= 64)
+            {
+                num.expand();
+                bitOffset += 64;
+            }
+
             if (bin.at(i) == 1)
             {
-                num += pow(2, i);
+                num.at(i/64) += pow(2, i - bitOffset);
             }
         }
 
