@@ -53,5 +53,5 @@ TEST(BBITS, Greater) {
     b = b + 1 + ULLONG_MAX;
     b = b + 1 ;
 
-    EXPECT_TRUE(b > a);
+    EXPECT_TRUE(b > a) << "b > a should be true.";
 }
