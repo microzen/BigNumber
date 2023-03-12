@@ -254,6 +254,9 @@ namespace BB
         }
         
         // if a.size() == b.size()
+        // TODO: only the last one need to contras
+        //  for example i.size = 2 and j.size = 2
+        //  i.at(0) == i.at(0) therefore, (i.at(end) > j.at(end)) return true;
         for (unsigned int i=0; i<a.size(); i++)
         {
             if (a.at(i) < b.at(i))
