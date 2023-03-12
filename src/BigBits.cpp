@@ -25,7 +25,6 @@ namespace BB
         *this = other;
     }
 
-    // Work in progress
     BigBits::BigBits(const string &s)
     {
         for (unsigned int i=0; i<s.size(); i++)
@@ -120,11 +119,10 @@ namespace BB
         return *this;
     }
 
-    // CHANGE: need to store num as BigBits, 
-    // but I need more operators to do that than I currently have 3/8/23
+    //TODO: test
     BigBits & BigBits::fromBin(vector<unsigned int> bin)
     {
-        unsigned int num=0;
+        BigBits num = "0";
 
         for (unsigned int i=0; i<bin.size(); i++)
         {
@@ -134,7 +132,7 @@ namespace BB
             }
         }
 
-        *this = BigBits(num);
+        *this = num;
 
         return *this;
     }

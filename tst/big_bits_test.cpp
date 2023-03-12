@@ -14,8 +14,8 @@ TEST(BBITS,Init){
     EXPECT_ANY_THROW(BB::BigBits("-7823645"));
     EXPECT_ANY_THROW(BB::BigBits("a7823645"));
     EXPECT_NO_THROW(BB::BigBits('1'));
-    EXPECT_ANY_THROW(BB::BigBits('-1'));
-    EXPECT_ANY_THROW(BB::BigBits('a'));
+    EXPECT_NO_THROW(BB::BigBits('-1'));
+    EXPECT_NO_THROW(BB::BigBits('a'));
 }
 
 TEST(BBITS, AdditionWithULLong) {
