@@ -28,6 +28,13 @@ namespace BB
     // Work in progress
     BigBits::BigBits(const string &s)
     {
+        for (unsigned int i=0; i<s.size(); i++)
+        {
+            if (!isdigit(s.at(i)))
+            {
+                throw invalid_argument("what(): BigBits(const string &)");
+            }
+        }
         *this = s;
     }
 
