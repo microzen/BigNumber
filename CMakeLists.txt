@@ -26,8 +26,7 @@ set(TEST_FILES
         src/big_number.cpp
         tst/big_number_test.cpp
         src/BigBits.cpp
-        tst/big_bits_test.cpp
-        )
+        tst/big_bits_test.cpp)
 
 add_executable(tst ${TEST_FILES})
 
