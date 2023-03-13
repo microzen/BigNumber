@@ -22,7 +22,7 @@ namespace BB
             BigBits(const char *);
 
             // Getters
-            const uint64_t at(unsigned int) const;
+            uint64_t at(unsigned int) const;
             vector<uint64_t> getVect() const;
             unsigned int getNumBits() const;
             uint64_t truncate(BigBits &) const;
@@ -40,6 +40,7 @@ namespace BB
 
             // Other
             BigBits &findMinSize();
+            bool leftShiftOut(unsigned int) const;
 
             /// Operator Overloading ///
 
@@ -99,21 +100,23 @@ namespace BB
             /*
             BigBits &operator -=(BigBits &, const BigBits &);
             BigBits operator -(const BigBits &, const BigBits &);
-
+            */
             // Multiplication and Division
-            BigBits &operator *=(BigBits &, const BigBits &);
-            BigBits operator *(const BigBits &, const BigBits &);
+            BigBits & operator *=(const BigBits &);
+            BigBits operator *(const BigBits &);
+            /*
             BigBits &operator /=(BigBits &, const BigBits &);
             BigBits operator /(const BigBits &, const BigBits &);
 
             // Modulo
             BigBits &operator %=(BigBits &, const BigBits &);
             BigBits operator %(const BigBits &, const BigBits &);
+            */
 
             // Power Function
-            BigBits &operator ^=(BigBits &,const BigBits &);
-            BigBits operator ^^(BigBits &, const BigBits &);
-
+            BigBits & operator ^=(const BigBits &);
+            BigBits operator ^(const BigBits &);
+            /*
             // Square Root
             BigBits & sqrt(BigBits &a);
             */
@@ -126,9 +129,9 @@ namespace BB
             vector<uint64_t> number;
 
             // Private Helper Functions
-            unsigned int ceilPowTwo(unsigned int) const;
+            static unsigned int ceilPowTwo(unsigned int) ;
             string toString() const;
-            bool leftShiftOut(unsigned int) const;
+
     };
 
 
@@ -138,16 +141,16 @@ namespace BB
             Nibble();
             Nibble(uint8_t);
 
-            bool shift(const bool);
+            bool shift(bool);
             char toChar() const;
 
-            Nibble & operator =(const uint8_t);
-            Nibble & operator +=(const uint8_t);
-            bool operator >(const uint8_t);
+            Nibble & operator =(uint8_t);
+            Nibble & operator +=(uint8_t);
+            bool operator >(uint8_t) const;
 
         private:
             uint8_t low : 4;
-            uint8_t high : 4;
+            //uint8_t high : 4;
     };
 
 } // End of namespace BB

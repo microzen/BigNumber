@@ -27,9 +27,9 @@ namespace BB
 
     BigBits::BigBits(const string &s)
     {
-        for (unsigned int i=0; i<s.size(); i++)
+        for (char i : s)
         {
-            if (!isdigit(s.at(i)))
+            if (!isdigit(i))
             {
                 throw invalid_argument("what(): BigBits(const string &)");
             }
@@ -46,7 +46,7 @@ namespace BB
     // **********************************************************************************************
     // Getters:
 
-    const uint64_t BigBits::at(unsigned int i) const
+    uint64_t BigBits::at(unsigned int i) const
     {
         return number.at(i);
     }
@@ -119,23 +119,15 @@ namespace BB
         return *this;
     }
 
-    //TODO: It isnt working properly for BigBits with >1 element
     BigBits & BigBits::fromBin(vector<unsigned int> bin)
     {
         BigBits num = "0";
-        unsigned int bitOffset = 0;
 
         for (unsigned int i=0; i<bin.size(); i++)
         {
-            if (i - bitOffset >= 64)
-            {
-                num.expand();
-                bitOffset += 64;
-            }
-
             if (bin.at(i) == 1)
             {
-                num.at(i/64) += pow(2, i - bitOffset);
+                num += BigBits("2") ^ BigBits(i);
             }
         }
 
@@ -265,7 +257,7 @@ namespace BB
             return false;
         }
 
-        for (unsigned int i = a.size() - 1; i>=0; i-- != 0)
+        for (int i = a.size() - 1; i>=0; i-- ,i!=0)
         {
             if (a.at(i) > b.at(i))
             {
@@ -291,7 +283,7 @@ namespace BB
     bool BigBits::operator <(const BigBits &b)
     {
         BigBits a = *this;
-        return !(a > b && a == b);
+        return !(a > b || a == b);
     }
 
     bool BigBits::operator <=(const BigBits &b)
@@ -443,7 +435,7 @@ namespace BB
 
         bool carryIn, carryOut=false;
         uint64_t inverseA;
-        const uint64_t MAX = 18446744073709551615; // 2^^64 - 1
+        const uint64_t MAX = ULLONG_MAX; // 2^^64 - 1
 
         // Resize so a, b, and result are the same size
         if (a.size() > b.size())
@@ -519,6 +511,84 @@ namespace BB
 
 
     // **********************************************************************************************
+    // Multiplication and Division:
+
+    //TODO: improve multiplication algorithm, this is just multiplication through repeated addition
+    // I just need something to test with
+    BigBits & BigBits::operator *=(const BigBits &rhs)
+    {
+        BigBits a = *this;
+        BigBits b = rhs;
+
+        BigBits limit;
+        BigBits temp;
+
+        // I know this is a shitty implementation
+        if (a > b)
+        {
+            limit = b;
+            temp = a;
+            for (BigBits i = "0"; i+1 < limit; i++)
+            {
+                a += temp;
+            }
+            *this = a;
+        }
+        else
+        {
+            limit = a;
+            temp = b;
+            for (BigBits i = "0"; i+1 < limit; i++)
+            {
+                b += temp;
+            }
+            *this = b;
+        }
+        return *this;
+    }
+
+    BigBits BigBits::operator *(const BigBits &rhs)
+    {
+        BigBits temp = *this;
+        temp *= rhs;
+        return temp;
+    }
+
+
+    // **********************************************************************************************
+    // Power Functions:
+
+    BigBits & BigBits::operator ^=(const BigBits &rhs)
+    {
+        BigBits base = *this;
+        BigBits temp = base;
+        BigBits power = rhs;
+
+        if (power == "0")
+        {
+            *this = "1";
+            return *this;
+        }
+
+        for (BigBits i = "0"; i+1 < power; i++)
+        {
+            base *= temp;
+        }
+
+        *this = base;
+        return *this;
+    }
+
+    BigBits BigBits::operator ^(const BigBits &rhs)
+    {
+        BigBits temp = *this;
+        temp ^= rhs;
+        return temp;
+    }
+
+
+
+// **********************************************************************************************
     // Stream Operators:
 
     // Eventually I might need to use Binary to BCD
@@ -577,7 +647,7 @@ namespace BB
     // Private Functions:
 
     // Takes an unsigned int n and returns the smallest power of two that is >= n and >= 64
-    unsigned int BigBits::ceilPowTwo(unsigned int n) const
+    unsigned int BigBits::ceilPowTwo(unsigned int n)
     {
         unsigned int ceil_num = pow(2, ceil(log2(n)));
 
@@ -599,7 +669,7 @@ namespace BB
         int bcdSize = 1;
         int bbSize = this->size() * 64;
         vector<Nibble> bcd;
-        string result = "";
+        string result;
         bool shiftIn, 
              shiftOut = this->leftShiftOut(this->size() - 1);
 
@@ -635,9 +705,9 @@ namespace BB
         }
 
         //Translate BCD bits to string
-        for (unsigned int i=0; i<bcd.size(); i++)
+        for (auto i : bcd)
         {
-            result += bcd.at(i).toChar();
+            result += i.toChar();
         }
 
         return result;
@@ -658,13 +728,13 @@ namespace BB
     Nibble::Nibble()
     {
         low = 0;
-        high = 0;
+        //high = 0;
     }
 
     Nibble::Nibble(uint8_t n)
     {
         low = (n & 0xF);
-        high = 0;
+        //high = 0;
     }
 
     // **********************************************************************************************
@@ -698,7 +768,7 @@ namespace BB
         return *this;
     }
 
-    bool Nibble::operator >(const uint8_t n)
+    bool Nibble::operator >(const uint8_t n) const
     {
         return low > (n & 0xF);
     }
