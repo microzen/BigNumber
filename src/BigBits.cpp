@@ -14,15 +14,16 @@ namespace BB
         number.resize(1,0);
     }
 
+    BigBits::BigBits(const BigBits &other)
+    {
+        *this = other;
+    }
+
+    // TODO: Figure out how to deal with implicit conversion from signed to unsigned int
     BigBits::BigBits(uint64_t n)
     {
         number.resize(1);
         *this = n;
-    }
-
-    BigBits::BigBits(const BigBits &other)
-    {
-        *this = other;
     }
 
     BigBits::BigBits(const string &s)
@@ -31,16 +32,18 @@ namespace BB
         {
             if (!isdigit(i))
             {
-                throw invalid_argument("what(): BigBits(const string &)");
+                throw invalid_argument("what(): BigBits(string)");
             }
         }
         *this = s;
     }
 
+    /*
     BigBits::BigBits(const char *s)
     {
         *this = s;
     }
+     */
 
 
     // **********************************************************************************************
@@ -74,7 +77,7 @@ namespace BB
     vector<unsigned int> BigBits::toBin() const
     {
         vector<unsigned int> bin;
-        
+
         for (unsigned int i=0; i<this->size(); i++)
         {
             uint64_t currentNum = this->at(i);
@@ -121,7 +124,7 @@ namespace BB
 
     BigBits & BigBits::fromBin(vector<unsigned int> bin)
     {
-        BigBits num = "0";
+        BigBits num = 0;
 
         for (unsigned int i=0; i<bin.size(); i++)
         {
@@ -146,7 +149,7 @@ namespace BB
     }
 
     void BigBits::resize(unsigned int elements)
-    {   
+    {
         // I still need to handle the case where elements < *this.size()
         if (elements >= number.size())
         {
@@ -193,26 +196,44 @@ namespace BB
         return *this;
     }
 
-    // I need BigBits multiplication to handle the case where the string represents a num > 2^64
+    // TODO: This is close to working, but not quite there yet
     BigBits & BigBits::operator =(const string &s)
     {
-        BigBits temp;
+        int stoopid=0;
+
+        BigBits nextDigit, powResult, intermediate, temp=0;
         for (unsigned int i=0; i < s.size(); i++)
         {
-            uint64_t nextDigit = stoi(s.substr((s.size() - i - 1), 1));
-            uint64_t nextNum = nextDigit * pow(10, i);
-            temp += nextNum;
+            // Extra variables are here to make debugging easier
+            nextDigit = stoi(s.substr(s.size() - i - 1, 1));
+            powResult = BigBits(10) ^ BigBits(i);
+            intermediate = nextDigit * powResult;
+            temp += intermediate;
+
+            stoopid++;
         }
 
         *this = temp;
         return *this;
     }
 
+    /*
     BigBits & BigBits::operator =(const char *s)
     {
-        *this = string(s);
+        char * ptr = s;
+        unsigned int sLength = *ptr.size();
+        BigBits temp;
+        for (unsigned int i=0; i < sLength; i++)
+        {
+            BigBits nextDigit = s[sLength - i - 1] - '0';
+            //uint64_t nextNum = nextDigit * pow(10, i);
+            temp += nextDigit * (BigBits(10) ^ BigBits(i)); // pow(10, i);
+        }
+
+        *this = temp;
         return *this;
     }
+     */
 
 
     // **********************************************************************************************
@@ -336,7 +357,7 @@ namespace BB
 
     bool BigBits::operator ==(const string &b)
     {
-        BigBits temp = b;
+        BigBits temp = stoi(b);
         return *this == temp;
     }
 
@@ -370,6 +391,7 @@ namespace BB
         return *this <= temp;
     }
 
+    /*
     bool BigBits::operator ==(const char *b)
     {
         BigBits temp = b;
@@ -405,6 +427,7 @@ namespace BB
         BigBits temp = b;
         return *this <= temp;
     }
+     */
 
 
     // **********************************************************************************************
@@ -523,12 +546,18 @@ namespace BB
         BigBits limit;
         BigBits temp;
 
+        if (a == 0 || b == 0)
+        {
+            *this = 0;
+            return *this;
+        }
+
         // I know this is a shitty implementation
         if (a > b)
         {
             limit = b;
             temp = a;
-            for (BigBits i = "0"; i+1 < limit; i++)
+            for (BigBits i = 0; i+1 < limit; i++)
             {
                 a += temp;
             }
@@ -538,7 +567,7 @@ namespace BB
         {
             limit = a;
             temp = b;
-            for (BigBits i = "0"; i+1 < limit; i++)
+            for (BigBits i = 0; i+1 < limit; i++)
             {
                 b += temp;
             }
@@ -564,13 +593,19 @@ namespace BB
         BigBits temp = base;
         BigBits power = rhs;
 
-        if (power == "0")
+        if (base == 0)
         {
-            *this = "1";
+            *this = 0;
             return *this;
         }
 
-        for (BigBits i = "0"; i+1 < power; i++)
+        if (power == 0)
+        {
+            *this = 1;
+            return *this;
+        }
+
+        for (BigBits i = 0; i+1 < power; i++)
         {
             base *= temp;
         }

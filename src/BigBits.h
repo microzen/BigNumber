@@ -16,10 +16,10 @@ namespace BB
         public:
             // Constructors
             BigBits();
-            BigBits(uint64_t);
             BigBits(const BigBits &);
+            BigBits(uint64_t);
             BigBits(const string &);
-            BigBits(const char *);
+            //BigBits(const char *);
 
             // Getters
             uint64_t at(unsigned int) const;
@@ -48,7 +48,7 @@ namespace BB
             BigBits & operator =(const BigBits &);
             BigBits & operator =(const uint64_t &);
             BigBits & operator =(const string &);
-            BigBits & operator =(const char *);
+            //BigBits & operator =(const char *);
 
             // Comparison operators
             bool operator ==(const BigBits &);
@@ -72,12 +72,14 @@ namespace BB
             bool operator <(const string &);
             bool operator <=(const string &);
 
+            /*
             bool operator ==(const char *);
             bool operator !=(const char *);
             bool operator >(const char *);
             bool operator >=(const char *);
             bool operator <(const char *);
             bool operator <=(const char *);
+             */
 
             // Incrementation/decrementation
             BigBits & operator ++();

@@ -7,16 +7,35 @@
 #include <cstdint>
 
 TEST(BBITS,Init){
-    // uint64_t
+    // Default
     EXPECT_NO_THROW(BB::BigBits());
+
+    // uint64_t
     EXPECT_NO_THROW(BB::BigBits(ULLONG_MAX));
-    EXPECT_NO_THROW(BB::BigBits("123456987123786783654378264587234657823465782346578236457823645"));
+    EXPECT_NO_THROW(BB::BigBits(1234567));
+    EXPECT_NO_THROW(BB::BigBits(323));
+
+    // string
+    EXPECT_NO_THROW(BB::BigBits(string("123")));
+    EXPECT_ANY_THROW(BB::BigBits(string("-12")));
+    EXPECT_ANY_THROW(BB::BigBits(string("64abc")));
+    EXPECT_NO_THROW(BB::BigBits(string("123456987123786783654378264587234657823465782346578236457823645")));
+
+    BB::BigBits bigNum = string("90445398191276609683561357299864965001643765149");
+    EXPECT_EQ(bigNum.size(), 3);
+    EXPECT_EQ(bigNum.at(0),11072005533870792623);
+    EXPECT_EQ(bigNum.at(1),7818575067201490371);
+    EXPECT_EQ(bigNum.at(2),12047803422806778902);
+
+
+    /*
     EXPECT_NO_THROW(BB::BigBits("7823645"));
     EXPECT_ANY_THROW(BB::BigBits("-7823645"));
     EXPECT_ANY_THROW(BB::BigBits("a7823645"));
     EXPECT_NO_THROW(BB::BigBits('1'));
     EXPECT_NO_THROW(BB::BigBits('-1'));
     EXPECT_NO_THROW(BB::BigBits('a'));
+     */
 }
 
 TEST(BBITS, AdditionWithULLong) {
@@ -42,8 +61,8 @@ TEST(BBITS, AdditionWithBigBits) {
     bigulli + num1;
     bigulli + num1;
 
-    BB::BigBits num2 = "9007199254740983";
-    BB::BigBits num3 = "9007199254740992";
+    BB::BigBits num2 = 9007199254740983;
+    BB::BigBits num3 = 9007199254740992;
     num2 += num3;
     EXPECT_EQ(num2.at(0), 18014398509481975);
 }
@@ -129,7 +148,7 @@ TEST(BBITS, FromBin) {
 }
 
 TEST(BBITS, leftShiftOut) {
-    BB::BigBits num = "17646744053709551612";
+    BB::BigBits num = 17646744053709551612;
     string binaryNum = "1111010011100101110101000011100001101011100110000011011111111100";
 
     for (unsigned int i=0; i<64; i++)
@@ -146,7 +165,7 @@ TEST(BBITS, Multiplication) {
     EXPECT_EQ(num1.at(0), 120);
 
     num1 = 2;
-    num2 = "18446744073709551615";
+    num2 = 18446744073709551615;
     BB::BigBits num3 = num2 + num2;
     EXPECT_EQ(num3.at(0), 18446744073709551614);
     EXPECT_EQ(num3.at(1), 1);
@@ -157,8 +176,13 @@ TEST(BBITS, Multiplication) {
 
 TEST(BBITS, Power) {
     BB::BigBits num1 = 4; // base
-    BB::BigBits num2 = "0"; // power
+    BB::BigBits num2 = 0; // power
     num1 ^= num2;
+    EXPECT_EQ(num1.at(0), 1);
+
+    num1 = 3;
+    num2 = 0;
+    num1 = num1 ^ num2;
     EXPECT_EQ(num1.at(0), 1);
 
     num1 = 2;
