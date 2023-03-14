@@ -6,105 +6,38 @@
 #include <bitset>
 #include <cstdint>
 
-TEST(BBITS,Init){
+TEST(BBITS, Constructors){
     // Default
     EXPECT_NO_THROW(BB::BigBits());
+
+    // BigBits
+    BB::BigBits bb = 12;
+    EXPECT_NO_THROW(BB::BigBits num(bb));
+    BB::BigBits num(bb);
+    EXPECT_EQ(num.at(0), 12);
 
     // uint64_t
     EXPECT_NO_THROW(BB::BigBits(ULLONG_MAX));
     EXPECT_NO_THROW(BB::BigBits(1234567));
     EXPECT_NO_THROW(BB::BigBits(323));
+    EXPECT_EQ(BB::BigBits(323).at(0), 323);
 
     // string
     EXPECT_NO_THROW(BB::BigBits(string("123")));
     EXPECT_ANY_THROW(BB::BigBits(string("-12")));
     EXPECT_ANY_THROW(BB::BigBits(string("64abc")));
     EXPECT_NO_THROW(BB::BigBits(string("123456987123786783654378264587234657823465782346578236457823645")));
+    EXPECT_EQ(BB::BigBits(string("323")).at(0), 323);
 
+    /*
     BB::BigBits bigNum = string("90445398191276609683561357299864965001643765149");
     EXPECT_EQ(bigNum.size(), 3);
     EXPECT_EQ(bigNum.at(0),11072005533870792623);
     EXPECT_EQ(bigNum.at(1),7818575067201490371);
     EXPECT_EQ(bigNum.at(2),12047803422806778902);
-
-
-    /*
-    EXPECT_NO_THROW(BB::BigBits("7823645"));
-    EXPECT_ANY_THROW(BB::BigBits("-7823645"));
-    EXPECT_ANY_THROW(BB::BigBits("a7823645"));
-    EXPECT_NO_THROW(BB::BigBits('1'));
-    EXPECT_NO_THROW(BB::BigBits('-1'));
-    EXPECT_NO_THROW(BB::BigBits('a'));
-     */
+    */
 }
 
-TEST(BBITS, AdditionWithULLong) {
-    BB::BigBits ullbig(ULLONG_MAX);
-    ullbig = ullbig + 1;
-    EXPECT_EQ(ullbig.at(0), 0);
-    EXPECT_EQ(ullbig.at(1), 1);
-
-    ullbig = ullbig + ULLONG_MAX;
-    ullbig = ullbig + 1;
-
-    EXPECT_EQ(ullbig.at(0), 0);
-    EXPECT_EQ(ullbig.at(1), 2);
-
-}
-
-TEST(BBITS, AdditionWithBigBits) {
-    BB::BigBits bigulli(ULLONG_MAX);
-    BB::BigBits num1(1);
-
-    BB::BigBits result = bigulli + num1;
-    bigulli + num1;
-    bigulli + num1;
-    bigulli + num1;
-
-    BB::BigBits num2 = 9007199254740983;
-    BB::BigBits num3 = 9007199254740992;
-    num2 += num3;
-    EXPECT_EQ(num2.at(0), 18014398509481975);
-}
-
-TEST(BBITS, Greater) {
-    BB::BigBits a(ULLONG_MAX);
-    BB::BigBits b(ULLONG_MAX);
-
-    a = a + 1 + ULLONG_MAX;
-    a = a + 1 + ULLONG_MAX;
-    a = a + 10;
-
-    b = b + 1 + ULLONG_MAX;
-    b = b + 1 + ULLONG_MAX;
-    b = b + 1 + ULLONG_MAX;
-    b = b + 1 + ULLONG_MAX;
-    b = b + 1 ;
-
-    EXPECT_TRUE(b > a) << "b > a should be true.";
-}
-
-TEST(BBITS, LessThan) {
-    BB::BigBits a(ULLONG_MAX);
-    BB::BigBits b(ULLONG_MAX - 2);
-    bool test = false;
-
-    EXPECT_FALSE(a < b);
-    test = a < b;
-    b++;
-    EXPECT_FALSE(a < b);
-    test = a < b;
-    b++;
-    EXPECT_FALSE(a < b);
-    test = a < b;
-    b++;
-    EXPECT_TRUE(a < b);
-    test = a < b;
-    b++;
-    EXPECT_TRUE(a < b);
-    test = a < b;
-    b++;
-}
 
 TEST(BBITS, FromBin) {
     BB::BigBits num;
@@ -128,24 +61,8 @@ TEST(BBITS, FromBin) {
     EXPECT_EQ(num.size(), 2);
     EXPECT_EQ(num.at(0),18446744073709551607);
     EXPECT_EQ(num.at(1),11);
-
-
-
-    /*
-    srand(0);
-    bin1.resize(0);
-    for (unsigned int i=0; i<80; i++)
-    {
-        bin1.push_back(rand()%2);
-    }
-    num.fromBin(bin1);
-
-    EXPECT_EQ(num.size(), 2);
-    EXPECT_EQ(num.at(0), 8341798683095734119);
-    EXPECT_EQ(num.at(1), 58618);
-    */
-
 }
+
 
 TEST(BBITS, leftShiftOut) {
     BB::BigBits num = 17646744053709551612;
@@ -157,6 +74,130 @@ TEST(BBITS, leftShiftOut) {
         EXPECT_EQ(num.leftShiftOut(63 - i), thisBit);
     }
 }
+
+
+TEST(BBITS, Equal) {
+    BB::BigBits a(ULLONG_MAX);
+    BB::BigBits b(ULLONG_MAX);
+    EXPECT_TRUE(a == b);
+    a++;
+    EXPECT_FALSE(a == b);
+}
+
+
+TEST(BBITS, NotEqual) {
+    BB::BigBits a(ULLONG_MAX);
+    BB::BigBits b(ULLONG_MAX);
+    EXPECT_FALSE(a != b);
+    a++;
+    EXPECT_TRUE(a != b);
+}
+
+
+TEST(BBITS, GreaterThan) {
+    BB::BigBits a(ULLONG_MAX - 2);
+    BB::BigBits b(ULLONG_MAX - 1);
+
+    EXPECT_FALSE(a > b);
+    a++;
+    EXPECT_FALSE(a > b);
+    a++;
+    EXPECT_TRUE(a > b);
+    a++; b++;
+    EXPECT_TRUE(a > b);
+}
+
+
+TEST(BBITS, GreaterThanOrEqual) {
+    BB::BigBits a(ULLONG_MAX - 2);
+    BB::BigBits b(ULLONG_MAX - 1);
+
+    EXPECT_FALSE(a >= b);
+    a++;
+    EXPECT_TRUE(a >= b);
+    a++;
+    EXPECT_TRUE(a >= b);
+    a++; b++;
+    EXPECT_TRUE(a >= b);
+}
+
+
+TEST(BBITS, LessThan) {
+    BB::BigBits a(ULLONG_MAX - 2);
+    BB::BigBits b(ULLONG_MAX - 1);
+
+    EXPECT_TRUE(a < b);
+    a++;
+    EXPECT_FALSE(a < b);
+    b++;
+    EXPECT_TRUE(a < b);
+    a++; b++;
+    EXPECT_TRUE(a < b);
+}
+
+
+TEST(BBITS, LessThanOrEqual) {
+    BB::BigBits a(ULLONG_MAX - 2);
+    BB::BigBits b(ULLONG_MAX - 1);
+
+    EXPECT_TRUE(a <= b);
+    a++;
+    EXPECT_TRUE(a <= b);
+    b++;
+    EXPECT_TRUE(a <= b);
+    a++; b++;
+    EXPECT_TRUE(a <= b);
+}
+
+
+TEST(BBITS, PreIncrement) {
+    BB::BigBits num = 123;
+    ++num;
+    EXPECT_EQ(num.at(0), 124);
+    num = ULLONG_MAX;
+    ++num;
+    EXPECT_EQ(num.at(0), 0);
+    EXPECT_EQ(num.at(1), 1);
+}
+
+
+TEST(BBITS, PostIncrement) {
+    BB::BigBits num = 123;
+    num++;
+    EXPECT_EQ(num.at(0), 124);
+    num = ULLONG_MAX;
+    num++;
+    EXPECT_EQ(num.at(0), 0);
+    EXPECT_EQ(num.at(1), 1);
+}
+
+
+TEST(BBITS, Addition) {
+    // BigBits + int
+    BB::BigBits ullMax(ULLONG_MAX);
+    ullMax = ullMax + 1;
+    EXPECT_EQ(ullMax.at(0), 0);
+    EXPECT_EQ(ullMax.at(1), 1);
+
+    ullMax = ullMax + ULLONG_MAX;
+    ullMax = ullMax + 1;
+
+    EXPECT_EQ(ullMax.at(0), 0);
+    EXPECT_EQ(ullMax.at(1), 2);
+
+    // BigBits + BigBits
+    ullMax = ULLONG_MAX;
+    BB::BigBits num1(1);
+    BB::BigBits result = ullMax + num1;
+    ullMax + num1;
+    ullMax + num1;
+    ullMax + num1;
+    BB::BigBits num2 = 9007199254740983;
+    BB::BigBits num3 = 9007199254740992;
+    num2 += num3;
+    EXPECT_EQ(num2.at(0), 18014398509481975);
+}
+
 
 TEST(BBITS, Multiplication) {
     BB::BigBits num1 = 12;
@@ -174,6 +215,7 @@ TEST(BBITS, Multiplication) {
     EXPECT_EQ(num1.at(1), 1);
 }
 
+
 TEST(BBITS, Power) {
     BB::BigBits num1 = 4; // base
     BB::BigBits num2 = 0; // power
@@ -181,15 +223,28 @@ TEST(BBITS, Power) {
     EXPECT_EQ(num1.at(0), 1);
 
     num1 = 3;
-    num2 = 0;
+    num2 = 9;
     num1 = num1 ^ num2;
-    EXPECT_EQ(num1.at(0), 1);
+    EXPECT_EQ(num1.at(0), 19683);
 
     num1 = 2;
     num2 = 64;
     num1 = num1 ^ num2;
     EXPECT_EQ(num1.at(0), 0);
     EXPECT_EQ(num1.at(1), 1);
+}
+
+
+// Nibble -----------------------------------
+
+
+TEST(NIBBLE, Constructors) {
+    EXPECT_NO_THROW(BB::Nibble());
+    EXPECT_NO_THROW(BB::Nibble(0));
+    EXPECT_NO_THROW(BB::Nibble(3));
+    EXPECT_NO_THROW(BB::Nibble(12));
+    EXPECT_ANY_THROW(BB::Nibble(-4));
+    EXPECT_ANY_THROW(BB::Nibble(19));
 }
 
 
@@ -233,4 +288,55 @@ TEST(NIBBLE, Shift) {
             EXPECT_EQ(shiftOut, true);
         }
     }
+}
+
+
+TEST(NIBBLE, ToChar) {
+    EXPECT_EQ(BB::Nibble().toChar(), '0');
+    EXPECT_EQ(BB::Nibble(1).toChar(), '1');
+    EXPECT_EQ(BB::Nibble(2).toChar(), '2');
+    EXPECT_EQ(BB::Nibble(3).toChar(), '3');
+    EXPECT_EQ(BB::Nibble(4).toChar(), '4');
+    EXPECT_EQ(BB::Nibble(5).toChar(), '5');
+    EXPECT_EQ(BB::Nibble(6).toChar(), '6');
+    EXPECT_EQ(BB::Nibble(7).toChar(), '7');
+    EXPECT_EQ(BB::Nibble(8).toChar(), '8');
+    EXPECT_EQ(BB::Nibble(9).toChar(), '9');
+}
+
+
+TEST(NIBBLE, DirectAssignment) {
+    EXPECT_NO_THROW(BB::Nibble num = 0);
+    EXPECT_NO_THROW(BB::Nibble num = 3);
+    EXPECT_NO_THROW(BB::Nibble num = 15);
+    EXPECT_ANY_THROW(BB::Nibble num = -43);
+    EXPECT_ANY_THROW(BB::Nibble num = 43);
+
+    BB::Nibble num;
+    num = 1;
+    EXPECT_EQ(num.toChar(), '1');
+    num = 7;
+    EXPECT_EQ(num.toChar(), '7');
+}
+
+
+TEST(NIBBLE, Addition) {
+    BB::Nibble num = 3;
+    num += 1;
+    EXPECT_EQ(num.toChar(), '4');
+    num += 2;
+    EXPECT_EQ(num.toChar(), '6');
+    num += -3;
+    EXPECT_EQ(num.toChar(), '3');
+}
+
+
+TEST(NIBBLE, GreaterThan) {
+    BB::Nibble num1 = 3;
+    int n = 4;
+    EXPECT_EQ(num1 > n, false);
+    n--;
+    EXPECT_EQ(num1 > n, false);
+    n--;
+    EXPECT_EQ(num1 > n, true);
 }

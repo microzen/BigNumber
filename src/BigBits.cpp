@@ -141,7 +141,7 @@ namespace BB
 
 
     // **********************************************************************************************
-    // Mutators:
+    // Other:
 
     void BigBits::expand()
     {
@@ -156,10 +156,6 @@ namespace BB
             number.resize(elements, 0);
         }
     }
-
-
-    // **********************************************************************************************
-    // Other:
 
     BigBits & BigBits::findMinSize()
     {
@@ -179,6 +175,12 @@ namespace BB
         return *this;
     }
 
+    bool BigBits::leftShiftOut(unsigned int i) const
+    {
+        vector<unsigned int> bin = this->toBin();
+        return bin.at(i);
+    }
+
 
     // Operation Overloading:
     // **********************************************************************************************
@@ -196,7 +198,7 @@ namespace BB
         return *this;
     }
 
-    // TODO: This is close to working, but not quite there yet
+    // TODO: This is close to working, but not quite there yet, still getting incorrect outputs on large numbers
     BigBits & BigBits::operator =(const string &s)
     {
         int stoopid=0;
@@ -537,7 +539,6 @@ namespace BB
     // Multiplication and Division:
 
     //TODO: improve multiplication algorithm, this is just multiplication through repeated addition
-    // I just need something to test with
     BigBits & BigBits::operator *=(const BigBits &rhs)
     {
         BigBits a = *this;
@@ -748,12 +749,6 @@ namespace BB
         return result;
     }
 
-    bool BigBits::leftShiftOut(unsigned int i) const
-    {
-        vector<unsigned int> bin = this->toBin();
-        return bin.at(i);
-    }
-
 
     // **********************************************************************************************
     // Nibble:
@@ -762,14 +757,16 @@ namespace BB
 
     Nibble::Nibble()
     {
-        low = 0;
-        //high = 0;
+        bits = 0;
     }
 
-    Nibble::Nibble(uint8_t n)
+    Nibble::Nibble(int n)
     {
-        low = (n & 0xF);
-        //high = 0;
+        if (n < 0 || n > 15)
+        {
+            throw invalid_argument("what(): Nibble(unsigned int)");
+        }
+        bits = n;
     }
 
     // **********************************************************************************************
@@ -777,35 +774,39 @@ namespace BB
 
     bool Nibble::shift(const bool shiftIn)
     {
-        bool shiftOut = low & 0b00001000;
-        low = low << 1;
-        low += shiftIn;
+        bool shiftOut = bits & 0b00001000;
+        bits = bits << 1;
+        bits += shiftIn;
         return shiftOut;
     }
 
     char Nibble::toChar() const
     {
-        return low + '0';
+        return bits + '0';
     }
 
     // **********************************************************************************************
     // Operator Overloading:
 
-    Nibble & Nibble::operator =(const uint8_t n)
+    Nibble & Nibble::operator =(const int n)
     {
-        low = (n & 0xF);
+        if (n < 0 || n > 15)
+        {
+            throw invalid_argument("what(): Nibble(unsigned int)");
+        }
+        bits = n;
         return *this;
     }
 
-    Nibble & Nibble::operator +=(const uint8_t n)
+    Nibble & Nibble::operator +=(const int n)
     {
-        low += (n & 0xF);
+        bits += n;
         return *this;
     }
 
-    bool Nibble::operator >(const uint8_t n) const
+    bool Nibble::operator >(const int n) const
     {
-        return low > (n & 0xF);
+        return bits > n;
     }
 
 } // End of namespace BB

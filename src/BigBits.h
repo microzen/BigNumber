@@ -33,13 +33,11 @@ namespace BB
             uint64_t & at(unsigned int);
             BigBits & randomize(unsigned int, unsigned int);
             BigBits & fromBin(vector<unsigned int>);
-            
-            // Mutators
-            void expand();
-            void resize(unsigned int);
 
             // Other
-            BigBits &findMinSize();
+            void expand();
+            void resize(unsigned int);
+            BigBits & findMinSize();
             bool leftShiftOut(unsigned int) const;
 
             /// Operator Overloading ///
@@ -141,18 +139,17 @@ namespace BB
     {
         public:
             Nibble();
-            Nibble(uint8_t);
+            Nibble(int);
 
             bool shift(bool);
             char toChar() const;
 
-            Nibble & operator =(uint8_t);
-            Nibble & operator +=(uint8_t);
-            bool operator >(uint8_t) const;
+            Nibble & operator =(int);
+            Nibble & operator +=(int);
+            bool operator >(int) const;
 
         private:
-            uint8_t low : 4;
-            //uint8_t high : 4;
+            uint8_t bits : 4;
     };
 
 } // End of namespace BB
